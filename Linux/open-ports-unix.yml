@@ -1,0 +1,8 @@
+---
+- hosts: ansibleclient
+  tasks:
+    - name: display the server network details
+      shell: |
+        netstat -nat | grep LISTEN
+      register: result
+    - debug: var=result
