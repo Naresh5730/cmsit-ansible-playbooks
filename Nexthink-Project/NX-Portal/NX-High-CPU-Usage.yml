@@ -1,0 +1,42 @@
+---
+- hosts: nexthink
+  tasks:
+    - shell: |
+        #!/bin/bash
+        #date -d "today + 7 days" +"%d %b %Y"
+        /usr/bin/cat /proc/loadavg | awk '{print $1}' | awk '{ if($1 > 5) printf("Current CPU Utilization is: %.2f%\n"), $0;}'
+      register: result
+   # - debug: var=result
+
+    - name: send mail
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+                #- Naresh <madasu.n@cmsitservices.com>
+        - Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+        - Sushil Kumar <sushil.kumar@cmsitservices.com>
+        cc:
+        - Naresh <madasu.n@cmsitservices.com>
+          #- Sushil Kumar <sushil.kumar@cmsitservices.com>
+          #- Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+          #subject: "ansible-Clientserver Disk-Usage-Reports"
+        subject: "Ansible High-CPU-Usage-Alert"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The {{ host }}
+      
+        High CPU Usage on {{ hostvars[host]['result']['stdout'] }}
+
+        {% endfor %}
+
+
+
+        Regards,
+
+        Unix Admins via Ansible "
+      delegate_to: localhost
+      run_once: True
+      when: result.stdout 

@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  tasks:
+    - name: shedule tasks
+      cron:
+        hour: "*"
+        minute: "*/5"
+        month: "*"
+        job: "/usr/bin/ansible-playbook /root/Linux/Nexthink-Project/NX-disk-usage.yml"
+        state: present 
+
+        #  - name: shedule tasks
+        #cron:
+        #hour: "*"
+        #minute: "*/5"
+        #month: "*"
+        #job: "/usr/bin/ansible-playbook /var/lib/awx/projects/Linux/cpu-reports.yml"
+        #state: present      

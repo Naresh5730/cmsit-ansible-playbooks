@@ -1,0 +1,55 @@
+---
+- hosts: nexthink
+  tasks:
+    - name: Ensure admin can log in
+      uri:
+        url: http://cmsitnxporcoe.cmsitservices.com
+        user: admin
+        password: "admin"
+        validate_certs: False
+        force_basic_auth: yes
+        return_content: yes
+      ignore_errors: yes
+      register: login
+    - debug: var=login
+
+
+
+    - name: send mail
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+        - Sushil Kumar <sushil.kumar@cmsitservices.com>
+        - Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+          #- Naresh <madasu.n@cmsitservices.com>
+        cc:
+        - Naresh <madasu.n@cmsitservices.com>
+          #- Sushil Kumar <sushil.kumar@cmsitservices.com>
+          #- Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+          #subject: "ansible-Clientserver Disk-Usage-Reports"
+        subject: "Nexthink Web Application URL-Status Critical Alert"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The {{ host }}
+
+        Nexthink Web Application is not working
+
+        Error code is:
+
+        {{ login | to_nice_json }}
+
+        {% endfor %}
+
+        Regards,
+
+
+
+        Unix Admins via Ansible "
+      delegate_to: localhost
+      run_once: True
+      #when: login.stdout
+      #when: result|failed 
+      when: login is failed
