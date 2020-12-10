@@ -1,0 +1,49 @@
+---
+- hosts: win 
+  tasks:
+    - name: High memory usage
+      win_shell: |
+        $totalMemory = (
+        Get-WmiObject -Class win32_physicalmemory -Property Capacity | 
+        Measure-Object -Property Capacity -Sum | 
+        Select-Object -ExpandProperty Sum
+        ) / 1MB
+
+        $availMemory = (Get-Counter '\Memory\Available MBytes').CounterSamples.CookedValue
+
+        $usedMemory = ($totalMemory - $availMemory) / $totalMemory * 100 
+
+        If ( $usedMemory -ge 80 ) {
+        Write-Output " High memory Utilization: $usedMemory% "
+        }
+      register: result
+    - debug: var=result
+
+      #- hosts: localhost
+      # tasks:
+    - name: mail sending using mail module
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh&573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+        #        - Sushil Kumar <sushil.kumar@cmsitservices.com>
+        # - Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+        subject: "ansible-Windows-Clientserver High Memory USAGE Critical Reports"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The windows {{ host }}
+        High Memory Usage INFO 
+       
+        {{ hostvars[host]['result']['stdout'] }}
+        {% endfor %}
+        
+       
+        Regards,
+
+        Unix Admins via Ansible" 
+      delegate_to: localhost
+      # run_once: True
+      when: result.stdout

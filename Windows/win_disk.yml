@@ -1,0 +1,58 @@
+---
+- hosts: win 
+  tasks:
+    - name: Disk usage
+      win_shell: |
+        $path=Split-Path $MyInvocation.MyCommand.path 
+        $Computers = "localhost" 
+        $minGbThreshold = 99.9;
+        foreach ($Computer in $Computers)  
+        {  
+        $Disks = Get-wmiobject  Win32_LogicalDisk -computername $Computer -ErrorAction SilentlyContinue -filter "DriveType= 3" 
+        $Servername = (Get-wmiobject  CIM_ComputerSystem -ComputerName $computer).Name
+        foreach ($objdisk in $Disks)  
+        {  
+                 
+        $total=“{0:N3}” -f ($objDisk.Size/1GB)  
+        $free= “{0:N3}” -f ($objDisk.FreeSpace/1GB)  
+        $freePercent="{0:P2}" -f ([double]$objDisk.FreeSpace/[double]$objDisk.Size)  
+        if($freePercent -lt $minGbThreshold)
+        {
+        Write-Host "Servername      :" $Servername  
+        Write-Host "Drive Folder    :" $objDisk.DeviceID "Drive" 
+        Write-Host "Total size (GB) :" $total 
+        Write-Host "Free Space (GB) :" $free 
+        Write-Host “Free Space (%)  :” $freePercent 
+        }
+        } 
+        } 
+      register: result
+    - debug: var=result
+
+      #- hosts: localhost
+      # tasks:
+    - name: mail sending using mail module
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+        #        - Sushil Kumar <sushil.kumar@cmsitservices.com>
+        # - Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+        subject: "ansible-Windows-Clientserver High Disk USAGE Critical Reports"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The windows {{ host }}
+        High Disk Usage INFO 
+        
+        {{ hostvars[host]['result']['stdout'] }}
+        {% endfor %}
+        
+       
+        Regards,
+
+        Unix Admins via Ansible" 
+      delegate_to: localhost
+      # run_once: True

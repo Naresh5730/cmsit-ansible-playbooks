@@ -1,0 +1,34 @@
+---
+- hosts: win 
+  tasks:
+    - name: windows basic Info
+      win_shell: |
+        Get-CimInstance -ClassName Win32_ComputerSystem
+      register: result
+#    - debug: var=result
+
+      #- hosts: localhost
+      # tasks:
+    - name: mail sending using mail module
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+        #        - Sushil Kumar <sushil.kumar@cmsitservices.com>
+        # - Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+        subject: "ansible-Windows-Clientserver Windows Basic Info"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The windows {{ host }}
+        Windows Basic INFO {{ hostvars[host]['result']['stdout'] }}
+        {% endfor %}
+        
+       
+        Regards,
+
+        Unix Admins via Ansible" 
+      delegate_to: localhost
+      # run_once: True

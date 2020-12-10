@@ -1,0 +1,30 @@
+---
+- hosts: win
+  tasks:
+    - name: enable Domain firewall
+      win_firewall:
+        state: enabled
+        profiles:
+        - Domain
+        - Private
+        - public
+      tags: enable_firewall
+      register: result
+    - debug: var=result
+
+    - name: mail sending using mail module
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+        #        - Sushil Kumar <sushil.kumar@cmsitservices.com>
+        # - Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+        subject: "ansible-Windows-Clientserver Enable Domain Firewalls"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "Windows {{ ansible_hostname }} firewall has been enabled successfully."
+      delegate_to: localhost
+      # run_once: True
+      #when: result|enable_firewall

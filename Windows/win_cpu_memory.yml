@@ -1,0 +1,45 @@
+---
+- hosts: win 
+  tasks:
+    - name: CPU usage
+      win_shell: |
+        Write-Host "`n------date-----------" -ForegroundColor Green
+        Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        Write-Host "-----------------" -ForegroundColor Green
+        Write-Host "-CPU Usage--" -ForegroundColor Green
+        Write-Host "-----------------" -ForegroundColor Green
+        ((Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue).ToString("#,0.000") + '%'
+        Write-Host "-----------------" -ForegroundColor Green
+        Write-Host " Checking 'Memory usage'"
+        Write-Host "-----------------" -ForegroundColor Green
+        $totalRam = (Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property capacity -Sum).Sum
+        $availMem = (Get-Counter '\Memory\Available MBytes').CounterSamples.CookedValue
+        $availMem.ToString("N0") + 'MB (' + (104857600 * $availMem / $totalRam).ToString("#,0.0") + '%)'
+      register: result
+    - debug: var=result
+
+      #- hosts: localhost
+      # tasks:
+    - name: mail sending using mail module
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+        #        - Sushil Kumar <sushil.kumar@cmsitservices.com>
+        # - Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+        subject: "ansible-Windows-Clientserver CPU&MEMORY USAGE Reports"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The windows {{ host }}
+        CPU&MEMORY INFO {{ hostvars[host]['result']['stdout'] }}
+        {% endfor %}
+        
+       
+        Regards,
+
+        Unix Admins via Ansible" 
+      delegate_to: localhost
+      # run_once: True

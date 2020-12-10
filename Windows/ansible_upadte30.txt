@@ -1,0 +1,24 @@
+2020-09-18 03:27:08Z WUA is available in current logon process, running natively
+2020-09-18 03:27:09Z Creating Windows Update session...
+2020-09-18 03:27:09Z Create Windows Update searcher...
+2020-09-18 03:27:09Z Setting the Windows Update Agent source catalog...
+2020-09-18 03:27:09Z Requested search source is 'default'
+2020-09-18 03:27:09Z Search source set to 'default' (ServerSelection = 0)
+2020-09-18 03:27:09Z Searching for updates to install
+2020-09-18 03:27:19Z Found 2 updates
+2020-09-18 03:27:19Z Creating update collection...
+2020-09-18 03:27:19Z Skipping update b706f871-e34a-4e21-a2e0-6e8287fb61ae - 2020-09 Cumulative Update Preview for .NET Framework 3.5, 4.7.2 and 4.8 for Windows Server 2019 for x64 (KB4577324) as it was not found in the category names filter
+2020-09-18 03:27:19Z Skipping update cd2ca847-bd34-49f1-9135-23462ca184b8 - Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.323.1404.0) as it was not found in the category names filter
+2020-09-18 03:27:19Z Calculating pre-install reboot requirement...
+2020-09-18 03:27:19Z Native job completed with output: 
+Name                           Value                                                                                                                                                                                                                                                                        
+----                           -----                                                                                                                                                                                                                                                                        
+updates                        {}                                                                                                                                                                                                                                                                           
+found_update_count             0                                                                                                                                                                                                                                                                            
+changed                        False                                                                                                                                                                                                                                                                        
+reboot_required                False                                                                                                                                                                                                                                                                        
+installed_update_count         0                                                                                                                                                                                                                                                                            
+filtered_updates               {b706f871-e34a-4e21-a2e0-6e8287fb61ae, cd2ca847-bd34-49f1-9135-23462ca184b8}                                                                                                                                                                                                 
+
+
+

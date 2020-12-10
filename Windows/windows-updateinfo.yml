@@ -1,0 +1,34 @@
+---
+- hosts: win 
+  tasks:
+    - name: windows last update information
+      win_shell: |
+        Get-CimInstance -ClassName Win32_QuickFixEngineering
+      register: result
+#    - debug: var=result
+
+      #- hosts: localhost
+      # tasks:
+    - name: mail sending using mail module
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+        #        - Sushil Kumar <sushil.kumar@cmsitservices.com>
+        # - Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+        subject: "ansible-Windows-Clientserver windows last update information"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The windows {{ host }}
+        CPU&MEMORY INFO {{ hostvars[host]['result']['stdout'] }}
+        {% endfor %}
+        
+       
+        Regards,
+
+        Unix Admins via Ansible" 
+      delegate_to: localhost
+      # run_once: True

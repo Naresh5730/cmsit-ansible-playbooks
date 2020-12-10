@@ -1,0 +1,15 @@
+---
+- hosts: win
+  tasks:
+    - name: HealIT code backup
+      win_shell: |
+        robocopy E:\aresource C:\MyFolder1 /z /np /xo /e
+      ignore_errors: yes
+      register: result
+    - debug: var=result
+    - name: code deployement
+      win_copy:
+        src: /root/windows/test0611 
+        dest: E:\aresource\Apache Software Foundation\Tomcat 9.0\
+        remote_src: no
+

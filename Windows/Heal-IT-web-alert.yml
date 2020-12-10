@@ -1,0 +1,45 @@
+---
+- hosts: win
+  tasks:
+    - name: Heal-It url status check
+      win_uri:
+        url: http://10.197.9.230
+      ignore_errors: yes
+      register: result
+    - debug: var=result
+
+    - name: send mail
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh&573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+          #cc:
+          #- Sushil Kumar <sushil.kumar@cmsitservices.com>
+          #- Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+          #subject: "ansible-Clientserver Disk-Usage-Reports"
+        subject: "HealIT Web Application-Status Critical Alert"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The {{ host }}
+      
+        HealIT Web Application is not working  
+        
+        Error code is:
+        
+                {{ result | to_nice_json }}
+
+        {% endfor %}
+
+
+
+        Regards,
+
+        Unix Admins via Ansible "
+      delegate_to: localhost
+      run_once: True
+      #when: result.stdout
+      #when: result|failed 
+      when: result is failed
