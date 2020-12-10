@@ -1,13 +1,14 @@
 ---
 - hosts: ansibleclient
   tasks:
-    - name: display the server network details
-      shell: |
-        netstat -nat | grep LISTEN
+    - shell: |
+        #!/bin/bash
+        #date -d "today + 7 days" +"%d %b %Y"
+        /usr/bin/cat /proc/loadavg | awk '{print $1}' | awk '{ if($1 > 0) printf("Current CPU Utilization is: %.2f%\n"), $0;}'
       register: result
-    - debug: var=result
+   # - debug: var=result
 
-    - name: mail sending using mail module
+    - name: send mail
       mail:
         host: "cmsitmail.cmsitservices.com"
         port: 587
@@ -18,16 +19,14 @@
           #cc:
           #- Sushil Kumar <sushil.kumar@cmsitservices.com>
           #- Kunal Bhatt <kunal.bhatt@cmsitservices.com>
-        subject: "ansible-Clientserver Network-Ethernet-Reports"
+          #subject: "ansible-Clientserver Disk-Usage-Reports"
+        subject: "Ansible High-CPU-Usage-Alert"
         #body: "{{ lookup('template','mail_body.j2') }}"
         body: "{% for host in play_hosts %}
         The {{ host }}
-        Server open ports
-        
-        
-        {{ hostvars[host]['result']['stdout'] }}
-        
-       
+      
+        High CPU Usage on {{ hostvars[host]['result']['stdout'] }}
+
         {% endfor %}
 
 
@@ -37,4 +36,4 @@
         Unix Admins via Ansible "
       delegate_to: localhost
       run_once: True
-      # when: not result.stdout
+      when: result.stdout 

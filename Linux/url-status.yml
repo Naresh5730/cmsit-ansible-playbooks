@@ -1,13 +1,13 @@
 ---
-- hosts: ansibleclient
+- hosts: nagiossrv.com
   tasks:
-    - name: display the server network details
-      shell: |
-        netstat -nat | grep LISTEN
+    - name: check url status
+      uri:
+        url: http://10.197.9.203
+      ignore_errors: yes
       register: result
-    - debug: var=result
 
-    - name: mail sending using mail module
+    - name: send mail
       mail:
         host: "cmsitmail.cmsitservices.com"
         port: 587
@@ -18,16 +18,18 @@
           #cc:
           #- Sushil Kumar <sushil.kumar@cmsitservices.com>
           #- Kunal Bhatt <kunal.bhatt@cmsitservices.com>
-        subject: "ansible-Clientserver Network-Ethernet-Reports"
+          #subject: "ansible-Clientserver Disk-Usage-Reports"
+        subject: "Apache Webserver URL-Status Critical Alert"
         #body: "{{ lookup('template','mail_body.j2') }}"
         body: "{% for host in play_hosts %}
         The {{ host }}
-        Server open ports
+      
+        Apache webserver is not working  
         
+        Error code is:
         
-        {{ hostvars[host]['result']['stdout'] }}
-        
-       
+                {{ result | to_nice_json }}
+
         {% endfor %}
 
 
@@ -37,4 +39,6 @@
         Unix Admins via Ansible "
       delegate_to: localhost
       run_once: True
-      # when: not result.stdout
+      #when: result.stdout
+      #when: result|failed 
+      when: result is failed

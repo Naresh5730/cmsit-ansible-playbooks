@@ -1,0 +1,52 @@
+---
+- hosts: nagiossrv.com
+  tasks:
+    - name: Ensure admin can log in
+      uri:
+        url: http://10.197.9.203/nagios
+        user: nagiosadmin
+        password: "Pa$$123"
+        force_basic_auth: yes
+        return_content: yes
+      ignore_errors: yes
+      register: login
+    - debug: var=login
+
+
+    - name: send mail
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+          #cc:
+          #- Sushil Kumar <sushil.kumar@cmsitservices.com>
+          #- Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+          #subject: "ansible-Clientserver Disk-Usage-Reports"
+        subject: "Nagios Web Application URL-Status Critical Alert"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        #body: "nagios url is not working"
+        body: "{% for host in play_hosts %}
+        The {{ host }}
+
+        Nagios Monitoring Web App is not working
+
+        Error code is:
+
+        {{ login | to_nice_json }}
+
+        {% endfor %}
+
+
+        
+        
+        Regards,
+
+        Unix Admins via Ansible "
+      delegate_to: localhost
+      run_once: True
+      #when: login.stdout
+      #when: result|failed 
+      when: login is failed

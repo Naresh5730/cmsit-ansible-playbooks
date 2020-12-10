@@ -1,0 +1,56 @@
+---
+- hosts: ansibleclient
+  tasks:
+    - shell: |
+        #!/bin/bash
+        #echo "system ip address"
+        #hostname -I | awk '{print $1}'
+        #date -d "today + 7 days" +"%d %b %Y"
+        threshold="20"
+        i=2
+        result=`df -kh |grep -v "Filesystem" | awk '{ print $5 }' | sed 's/%//g'`
+        for percent in $result; do
+        if ((percent > threshold))
+        then
+        partition=`df -kh | head -$i | tail -1| awk '{print $1}'`
+        # echo "$partition at $(hostname -f) is ${percent}% full"
+        echo "$partition is ${percent}% full"
+        fi
+        let i=$i+1
+        #date -d "today + 7 days" +"%d %b %Y"
+        done
+        # date
+        echo "system ip address"
+        hostname -I | awk '{print $1}'
+      register: result
+      #    - debug: var=result
+    
+    - name: send mail
+      mail:
+        host: "cmsitmail.cmsitservices.com"
+        port: 587
+        username: "madasu.n@cmsitservices.com"
+        password: "Naresh*573"
+        to:
+        - Naresh <madasu.n@cmsitservices.com>
+          #cc:
+          #- Sushil Kumar <sushil.kumar@cmsitservices.com>
+          #- Kunal Bhatt <kunal.bhatt@cmsitservices.com>
+          #subject: "ansible-Clientserver Disk-Usage-Reports"
+        subject: "Disk Usage High Alert From Ansible"
+        #body: "{{ lookup('template','mail_body.j2') }}"
+        body: "{% for host in play_hosts %}
+        The {{ host }}
+      
+        Disk Size high usage on {{ hostvars[host]['result']['stdout'] }}
+
+        {% endfor %}
+
+
+
+        Regards,
+
+        Unix Admins via Ansible "
+      delegate_to: localhost
+      #run_once: True
+      when: result.stdout 

@@ -2,8 +2,7 @@
 - hosts: ansibleclient
   tasks:
     - name: display the server network details
-      shell: |
-        netstat -nat | grep LISTEN
+      shell: nmcli
       register: result
     - debug: var=result
 
@@ -22,10 +21,7 @@
         #body: "{{ lookup('template','mail_body.j2') }}"
         body: "{% for host in play_hosts %}
         The {{ host }}
-        Server open ports
-        
-        
-        {{ hostvars[host]['result']['stdout'] }}
+        Network Information {{ hostvars[host]['result']['stdout'] }}
         
        
         {% endfor %}
